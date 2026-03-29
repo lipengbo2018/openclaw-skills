@@ -1,0 +1,21 @@
+{
+  "name": "video-pipeline",
+  "version": "1.0.0",
+  "description": "Video pipeline project for generating short videos",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo \"Server not implemented yet\"",
+    "render": "echo \"Custom render not implemented yet\"",
+    "render:sample": "node src/render-sample.js"
+  },
+  "keywords": [
+    "video",
+    "ffmpeg",
+    "pipeline"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.3.1"
+  }
+}
