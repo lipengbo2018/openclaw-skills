@@ -1,33 +1,109 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
+const { execSync } = require('child_process');
 
-// Load env
-const envPath = path.join(__dirname, '..', '.env');
-const envContent = fs.readFileSync(envPath, 'utf8');
-envContent.split('\n').forEach(line => {
-  const [key, ...vals] = line.split('=');
-  if (key && vals.length) process.env[key.trim()] = vals.join('=').trim();
-});
+const OUTPUT_DIR = path.join(__dirname, '..', 'output');
+const audioPath = path.join(OUTPUT_DIR, 'voiceover.mp3');
+
+const envPath = path.join(__dirname, '.env');
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, 'utf8');
+  envContent.split('\n').forEach(line => {
+    const [key, ...vals] = line.split('=');
+    if (key && vals.length) process.env[key.trim()] = vals.join('=').trim();
+  });
+}
 
 const API_KEY = process.env.MINIMAX_API_KEY;
 
 const SCRIPT = `哎！微信刚刚又偷偷更新了，我估计你还没注意到。就在昨天，微信推送了一个新版本，很多人更新完以后，发现界面好像没什么变化，就直接忽略了。但实啊，真正的功能藏在你最容易忽略的地方。我研究了一下，发现这次更新最大的变化，其实在对话框里。你现在去试试，随手打开一个好友的聊天界面，注意看顶部那个地方——是不是多了个叫"ai小结"的小按钮？对，就是它！这个功能可厉害了。你只要点一下，它就能帮你自动梳理出你们最近聊了什么、提到了哪些关键信息。就算是几百条的聊天记录，它也能在几秒钟之内给你整理得明明白白。比如说，你之前跟朋友讨论过的一个方案、时间、地点，或者答应别人的一件事是不是忘了——过去你得往上翻半天，现在点一下这个按钮，一目了然。而且不只是文字，语音聊天也能识别！这个功能目前不是所有人都能用，你更新到最新版本了没有？快去试试看！好用的话，记得回来告诉我。`;
 
-const OUTPUT_DIR = path.join(__dirname, '..', 'output');
+const MAX_CHARS_PER_SCREEN = 18;
 
-// Call Whisper API via MiniMax
-const https = require('https');
-const { URL } = require('url');
+function removePunctuation(text) {
+  return text.replace(/[，。！？、；：""''【】《》（）…—～,.!?;:\"\'\[\]\(\)\-]/g, '');
+}
 
-const audioPath = path.join(OUTPUT_DIR, 'voiceover.mp3');
-if (!fs.existsSync(audioPath)) {
+function splitTextIntoScreens(text) {
+  const screens = [];
+  let remaining = text;
+  
+  while (remaining.length > 0) {
+    if (remaining.length <= MAX_CHARS_PER_SCREEN) {
+      screens.push(remaining);
+      break;
+    }
+    let cutIndex = MAX_CHARS_PER_SCREEN;
+    for (let i = cutIndex - 1; i >= 0; i--) {
+      if (remaining[i] === ' ') {
+        cutIndex = i + 1;
+        break;
+      }
+    }
+    screens.push(remaining.substring(0, cutIndex));
+    remaining = remaining.substring(cutIndex).trim();
+  }
+  
+  return screens;
+}
+
+let audioDuration = 55;
+if (fs.existsSync(audioPath)) {
+  try {
+    const probeCmd = `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${audioPath}"`;
+    audioDuration = parseFloat(execSync(probeCmd, { encoding: 'utf8' }).trim());
+    console.log(`🎤 音频时长: ${audioDuration.toFixed(2)} 秒`);
+  } catch (e) {
+    console.log('⚠️ 无法获取音频时长，使用默认值 55 秒');
+  }
+} else {
   console.error('❌ 音频文件不存在');
   process.exit(1);
 }
 
+function generateTimestamps() {
+  const sentences = SCRIPT.split(/[。！？]/).filter(s => s.trim());
+  const avgDuration = audioDuration / sentences.length;
+  
+  let currentTime = 0;
+  const subtitles = [];
+  
+  sentences.forEach((sentence) => {
+    const cleanText = removePunctuation(sentence.trim());
+    const screens = splitTextIntoScreens(cleanText);
+    const screenDuration = avgDuration / screens.length;
+    
+    screens.forEach((screenText, i) => {
+      const start = currentTime + (i * screenDuration);
+      const end = start + screenDuration;
+      subtitles.push({
+        start: start.toFixed(2),
+        end: end.toFixed(2),
+        text: screenText
+      });
+    });
+    
+    currentTime += avgDuration;
+  });
+  
+  const outputPath = path.join(OUTPUT_DIR, 'subtitles.json');
+  fs.writeFileSync(outputPath, JSON.stringify(subtitles, null, 2));
+  console.log(`✅ 字幕时间戳已生成: ${outputPath}`);
+  console.log(`📝 共 ${subtitles.length} 条字幕`);
+}
+
+if (!API_KEY) {
+  console.log('⚠️ 无 API Key，使用时间戳生成...');
+  generateTimestamps();
+  process.exit(0);
+}
+
 const audioData = fs.readFileSync(audioPath);
 const base64Audio = audioData.toString('base64');
+
+const https = require('https');
+const { URL } = require('url');
 
 const apiUrl = `https://api.minimax.chat/v1/audio/asr`;
 const postData = JSON.stringify({
@@ -80,26 +156,3 @@ req.on('error', (e) => {
 
 req.write(postData);
 req.end();
-
-function generateTimestamps() {
-  // Split script into sentences and generate timestamps
-  const sentences = SCRIPT.split(/[。！？]/).filter(s => s.trim());
-  const totalDuration = 55; // seconds
-  const avgDuration = totalDuration / sentences.length;
-  
-  let currentTime = 0;
-  const subtitles = sentences.map((sentence, i) => {
-    const start = currentTime;
-    currentTime += avgDuration;
-    return {
-      start: start.toFixed(2),
-      end: currentTime.toFixed(2),
-      text: sentence.trim()
-    };
-  });
-  
-  const outputPath = path.join(OUTPUT_DIR, 'subtitles.json');
-  fs.writeFileSync(outputPath, JSON.stringify(subtitles, null, 2));
-  console.log(`✅ 字幕时间戳已生成: ${outputPath}`);
-  console.log(JSON.stringify(subtitles, null, 2));
-}

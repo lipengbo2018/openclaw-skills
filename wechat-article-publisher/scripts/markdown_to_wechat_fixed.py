@@ -55,7 +55,65 @@ THEMES = {
         "code_bg": "#f4ecf7",
         "quote_bg": "#f4ecf7",
         "strong": "#8e44ad",
-    }
+    },
+    "gov": {
+        "name": "政务蓝",
+        "primary": "#1e88e5",
+        "secondary": "#e3f2fd",
+        "text": "#3e3e3e",
+        "text_light": "#7793a8",
+        "border": "#a1cff5",
+        "border_dashed": "#a1cff5",
+        "code_bg": "#f4f9fd",
+        "quote_bg": "rgba(231, 245, 251, 0.55)",
+        "strong": "#1e88e5",
+        "divider": "rgba(191, 191, 191, 0.46)",
+        "bg": "rgb(252, 252, 252)",
+    },
+    "pink": {
+        "name": "粉色主题",
+        "primary": "#e91e8c",
+        "secondary": "#fce4ec",
+        "text": "#2b2b2b",
+        "text_light": "#595959",
+        "border": "#f8bbd9",
+        "code_bg": "#fce4ec",
+        "quote_bg": "#fce4ec",
+        "strong": "#e91e8c",
+    },
+    "cyan": {
+        "name": "青色主题",
+        "primary": "#00bcd4",
+        "secondary": "#e0f7fa",
+        "text": "#2b2b2b",
+        "text_light": "#595959",
+        "border": "#b2ebf2",
+        "code_bg": "#e0f7fa",
+        "quote_bg": "#e0f7fa",
+        "strong": "#00bcd4",
+    },
+    "red": {
+        "name": "红色主题",
+        "primary": "#f44336",
+        "secondary": "#ffebee",
+        "text": "#2b2b2b",
+        "text_light": "#595959",
+        "border": "#ffcdd2",
+        "code_bg": "#ffebee",
+        "quote_bg": "#ffebee",
+        "strong": "#f44336",
+    },
+    "black": {
+        "name": "黑色主题",
+        "primary": "#1a1a1a",
+        "secondary": "#f5f5f5",
+        "text": "#1a1a1a",
+        "text_light": "#757575",
+        "border": "#e0e0e0",
+        "code_bg": "#f5f5f5",
+        "quote_bg": "#eeeeee",
+        "strong": "#1a1a1a",
+    },
 }
 
 
@@ -119,19 +177,41 @@ def markdown_to_html_fixed(markdown_text, theme="orange"):
         # 标题
         if line.startswith('# '):
             content = process_inline(line[2:], colors)
-            html_lines.append(f'''<h1 style="margin: 1.2em 0 1em; padding: 0; font-weight: bold; color: {colors["text"]}; font-size: 24px; text-align: center; line-height: 1.4;">{content}</h1>''')
+            if theme == "gov":
+                html_lines.append(f'''<h1 style="margin: 24px 8px 16px; padding: 0; font-weight: 600; color: {colors["text"]}; font-size: 22px; text-align: center; line-height: 1.5; letter-spacing: 1px;">{content}</h1>''')
+            else:
+                html_lines.append(f'''<h1 style="margin: 1.2em 0 1em; padding: 0; font-weight: bold; color: {colors["text"]}; font-size: 24px; text-align: center; line-height: 1.4;">{content}</h1>''')
         elif line.startswith('## '):
             content = process_inline(line[3:], colors)
-            html_lines.append(f'''<h2 style="margin: 1.2em 0 0.8em; padding: 0 0 0.3em 0; font-weight: bold; color: {colors["text"]}; font-size: 20px; border-bottom: 2px solid {colors["primary"]}; line-height: 1.4;">{content}</h2>''')
+            if theme == "gov":
+                html_lines.append(f'''<section style="text-align: center; justify-content: center; display: flex; flex-flow: row; margin: 20px 0 16px; box-sizing: border-box;">
+<section style="display: inline-block; width: auto; vertical-align: top; align-self: flex-start; flex: 0 0 auto; background-repeat: repeat; background-attachment: scroll; min-width: 5%; max-width: 100%; height: auto; padding: 4px 14px; border-style: dashed; border-width: 1px; border-color: {colors["border_dashed"]}; border-radius: 8px; overflow: hidden; box-sizing: border-box;">
+<section style="text-align: justify; color: rgb(119, 173, 232); box-sizing: border-box;">
+<p style="white-space: normal; margin: 0; padding: 0; box-sizing: border-box; font-size: 16px; font-weight: 600; color: {colors["primary"]};">{content}</p>
+</section>
+</section>
+</section>''')
+            else:
+                html_lines.append(f'''<h2 style="margin: 1.2em 0 0.8em; padding: 0 0 0.3em 0; font-weight: bold; color: {colors["text"]}; font-size: 20px; border-bottom: 2px solid {colors["primary"]}; line-height: 1.4;">{content}</h2>''')
         elif line.startswith('### '):
             content = process_inline(line[4:], colors)
-            html_lines.append(f'''<h3 style="margin: 1em 0 0.6em; padding: 0 0 0 10px; font-weight: bold; color: {colors["text"]}; font-size: 18px; border-left: 4px solid {colors["primary"]}; line-height: 1.4;">{content}</h3>''')
+            if theme == "gov":
+                html_lines.append(f'''<h3 style="margin: 18px 8px 12px; padding: 0 0 0 12px; font-weight: 600; color: {colors["text"]}; font-size: 17px; border-left: 4px solid {colors["primary"]}; line-height: 1.5;">{content}</h3>''')
+            else:
+                html_lines.append(f'''<h3 style="margin: 1em 0 0.6em; padding: 0 0 0 10px; font-weight: bold; color: {colors["text"]}; font-size: 18px; border-left: 4px solid {colors["primary"]}; line-height: 1.4;">{content}</h3>''')
         elif line.startswith('#### '):
             content = process_inline(line[5:], colors)
             html_lines.append(f'''<h4 style="margin: 1em 0 0.5em; padding: 0; font-weight: bold; color: {colors["text"]}; font-size: 16px; line-height: 1.4;">{content}</h4>''')
         # 分隔线
         elif line.strip() == '---' or line.strip() == '***':
-            html_lines.append(f'''<hr style="margin: 20px 0; border: none; border-top: 1px solid {colors["border"]};" />''')
+            if theme == "gov":
+                html_lines.append(f'''<section style="display: flex; flex-flow: row; margin: 20px 0; text-align: center; justify-content: center; box-sizing: border-box;">
+<section style="display: inline-block; vertical-align: middle; width: 100%; align-self: center; flex: 0 0 auto; height: auto; box-sizing: border-box;">
+<section style="background-color: {colors["divider"]}; height: 1px; box-sizing: border-box;"></section>
+</section>
+</section>''')
+            else:
+                html_lines.append(f'''<hr style="margin: 20px 0; border: none; border-top: 1px solid {colors["border"]};" />''')
         # 无序列表 - 使用原生样式
         elif line.startswith('- ') or line.startswith('* '):
             if not in_list:
@@ -152,10 +232,18 @@ def markdown_to_html_fixed(markdown_text, theme="orange"):
         # 引用
         elif line.startswith('> '):
             if not in_blockquote:
-                html_lines.append(f'''<blockquote style="margin: 10px 0; padding: 10px 15px; background-color: {colors["quote_bg"]}; border-left: 4px solid {colors["primary"]}; border-radius: 0 5px 5px 0;">''')
+                if theme == "gov":
+                    html_lines.append(f'''<section style="text-align: left; justify-content: flex-start; display: flex; flex-flow: row; margin: 16px 0 12px; box-sizing: border-box;">
+<section style="display: inline-block; width: 100%; vertical-align: top; align-self: flex-start; flex: 0 0 auto; background-color: {colors["quote_bg"]}; padding: 18px; box-sizing: border-box; border-radius: 6px;">
+<section style="text-align: justify; line-height: 1.8; letter-spacing: 1px; box-sizing: border-box;">''')
+                else:
+                    html_lines.append(f'''<blockquote style="margin: 10px 0; padding: 10px 15px; background-color: {colors["quote_bg"]}; border-left: 4px solid {colors["primary"]}; border-radius: 0 5px 5px 0;">''')
                 in_blockquote = True
             content = process_inline(line[2:], colors)
-            html_lines.append(f'''<p style="margin: 5px 0; font-size: 14px; line-height: 1.8; color: {colors["text_light"]};">{content}</p>''')
+            if theme == "gov":
+                html_lines.append(f'''<p style="white-space: normal; margin: 0; padding: 0; box-sizing: border-box; font-size: 15px; color: {colors["text"]};">{content}</p>''')
+            else:
+                html_lines.append(f'''<p style="margin: 5px 0; font-size: 14px; line-height: 1.8; color: {colors["text_light"]};">{content}</p>''')
         # 图片
         elif re.match(r'!\[.*?\]\(.*?\)', line):
             match = re.match(r'!\[(.*?)\]\((.*?)\)', line)
@@ -169,7 +257,10 @@ def markdown_to_html_fixed(markdown_text, theme="orange"):
         # 普通段落
         else:
             content = process_inline(line, colors)
-            html_lines.append(f'''<p style="margin: 10px 0; font-size: 15px; line-height: 1.8; color: {colors["text"]}; text-align: justify; word-wrap: break-word;">{content}</p>''')
+            if theme == "gov":
+                html_lines.append(f'''<p style="white-space: normal; margin: 12px 0; padding: 0; box-sizing: border-box; font-size: 15px; line-height: 1.9; letter-spacing: 1px; color: {colors["text"]}; text-align: justify; word-wrap: break-word;">{content}</p>''')
+            else:
+                html_lines.append(f'''<p style="margin: 10px 0; font-size: 15px; line-height: 1.8; color: {colors["text"]}; text-align: justify; word-wrap: break-word;">{content}</p>''')
         
         i += 1
     
@@ -179,7 +270,10 @@ def markdown_to_html_fixed(markdown_text, theme="orange"):
     if in_ordered_list:
         html_lines.append('</ol>')
     if in_blockquote:
-        html_lines.append('</blockquote>')
+        if theme == "gov":
+            html_lines.append('</section></section>')
+        else:
+            html_lines.append('</blockquote>')
     
     return '\n'.join(html_lines)
 
@@ -218,9 +312,9 @@ def main():
     
     parser.add_argument(
         "--theme", "-t",
-        choices=["orange", "green", "blue", "purple"],
+        choices=["orange", "green", "blue", "purple", "gov", "pink", "cyan", "red", "black"],
         default="orange",
-        help="主题: orange(橙色), green(绿色), blue(蓝色), purple(紫色)"
+        help="主题: orange(橙色), green(绿色), blue(蓝色), purple(紫色), gov(政务蓝), pink(粉色), cyan(青色), red(红色), black(黑色)"
     )
     
     args = parser.parse_args()
@@ -233,8 +327,12 @@ def main():
         # 转换为 HTML
         html_content = markdown_to_html_fixed(markdown_text, args.theme)
         
+        # 获取主题背景色
+        colors = get_theme_colors(args.theme)
+        bg_color = colors.get("bg", "#ffffff")
+        
         # 包装在 section 中
-        final_html = f'<section style="padding: 10px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Ubuntu, \'Helvetica Neue\', Helvetica, Arial, \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei UI\', \'Microsoft YaHei\', sans-serif;">\n{html_content}\n</section>'
+        final_html = f'<section style="padding: 16px; box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, \'Segoe UI\', Roboto, Ubuntu, \'Helvetica Neue\', Helvetica, Arial, \'PingFang SC\', \'Hiragino Sans GB\', \'Microsoft YaHei UI\', \'Microsoft YaHei\', sans-serif; background-color: {bg_color};">\n{html_content}\n</section>'
         
         # 写入 HTML 文件
         with open(args.output, 'w', encoding='utf-8') as f:

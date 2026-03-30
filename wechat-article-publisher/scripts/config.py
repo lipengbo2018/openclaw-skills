@@ -85,6 +85,10 @@ def select_theme_by_content(title: str = "", content: str = "") -> str:
     if any(keyword in text for keyword in ['科技', 'ai', '人工智能', '商务', '职场', '管理', '效率']):
         return 'blue'
     
+    # 政务、企业新闻、融资、金融、农业农村 → gov
+    if any(keyword in text for keyword in ['政务', '融资', '金融', '农业', '农村', '合作', '签约', '发布', '集团', '战略']):
+        return 'gov'
+    
     # 健康、养生、环保 → green
     if any(keyword in text for keyword in ['健康', '养生', '环保', '自然', '运动', '饮食']):
         return 'green'
@@ -104,6 +108,10 @@ def select_theme_by_content(title: str = "", content: str = "") -> str:
     # 节日、活动 → red
     if any(keyword in text for keyword in ['节日', '春节', '新年', '活动', '庆祝']):
         return 'red'
+    
+    # 设计作品、极简生活 → black
+    if any(keyword in text for keyword in ['设计', '极简', '作品', '摄影', '美学']):
+        return 'black'
     
     # 默认使用 orange（温暖通用）
     return 'orange'

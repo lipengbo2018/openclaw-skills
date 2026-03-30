@@ -1,21 +1,28 @@
 {
   "name": "video-pipeline",
   "version": "1.0.0",
-  "description": "Video pipeline project for generating short videos",
+  "description": "短视频生成管道 - 使用 AI 配音 + 字幕生成 + ffmpeg 渲染",
   "main": "index.js",
   "scripts": {
-    "start": "echo \"Server not implemented yet\"",
-    "render": "echo \"Custom render not implemented yet\"",
-    "render:sample": "node src/render-sample.js"
+    "start": "npm run voice && npm run subtitles && npm run video",
+    "voice": "node src/generate-voice.js",
+    "subtitles": "node src/generate-subtitles.js",
+    "video": "node src/generate-video.js",
+    "render:sample": "node src/render-sample.js",
+    "clean": "rm -rf output/*.mp4 output/*.mp3 output/*.json output/*.srt output/frames/*.png 2>/dev/null; echo cleaned"
   },
   "keywords": [
     "video",
     "ffmpeg",
-    "pipeline"
+    "pipeline",
+    "short-video",
+    "tts"
   ],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^17.3.1"
+    "dotenv": "^17.3.1",
+    "say": "^0.16.0",
+    "say.js": "^1.4.0"
   }
 }
